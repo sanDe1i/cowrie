@@ -13,7 +13,7 @@ involve requesting and freeing VMs. All operations on shared data
 in the producer-consumer are guarded by a lock, since there may be
 concurrent requests. The lock protects the _guests_ list, which
 contains references for each VM backend (in our case libvirt/QEMU
-instances)."""
+instances).  """
 
 # Copyright (c) 2019 Guilherme Borges <guilhermerosasborges@gmail.com>
 # See the COPYRIGHT file for more information
@@ -79,7 +79,7 @@ class PoolService:
         created:     initialised but not fully booted by QEMU
         available:   can be requested
         using:       a client is connected, can be served for other clients from same ip
-        used:        client disconnectec, but can still be served for its ip
+        used:        client disconnected, but can still be served for its ip
         unavailable: marked for destruction after timeout
         destroyed:   deleted by qemu, can be removed from list
 
@@ -171,13 +171,13 @@ class PoolService:
 
         # try destroying all guests
         for guest in self.guests:
-            self.qemu.destroy_guest(guest.domain, guest.snapshot)
+            self.qemu.destroy_guest(guest["domain"], guest["snapshot"])
 
         # force destroy remaining stuff
         self.qemu.destroy_all_cowrie()
 
         # close any NAT sockets
-        if (not self.local_pool and self.use_nat) or self.pool_only:
+        if not self.local_pool and self.use_nat or self.pool_only:
             log.msg(
                 eventid="cowrie.backend_pool.service", format="Free all NAT bindings"
             )
@@ -268,7 +268,7 @@ class PoolService:
                 )
 
                 # only mark guests without clients
-                # (and guest.connected == 0) sometimes did not
+                # (and guest['connected'] == 0) sometimes did not
                 # work correctly as some VMs are not signaled as freed
                 if timed_out:
                     log.msg(
@@ -356,17 +356,17 @@ class PoolService:
             # create guest object
             self.guests.append(
                 Guest(
-                    id=self.guest_id,
-                    state=POOL_STATE_CREATED,
-                    prev_state=None,  # used in case a guest is requested and freed immediately, to revert the state
-                    start_timestamp=time.time(),
-                    guest_ip=guest_ip,
-                    connected=0,
-                    client_ips=list(),
-                    freed_timestamp=-1,
+                    id= self.guest_id,
+                    state= POOL_STATE_CREATED,
+                    prev_state= None,  # used in case a guest is requested and freed immediately, to revert the state
+                    start_timestamp = time.time(),
+                    guest_ip= guest_ip,
+                    connected= 0,
+                    client_ips= list(),
+                    freed_timestamp= -1,
                     domain=dom,
-                    snapshot=snap,
-                    name="",
+                    snapshot= snap,
+                    name=""
                 )
             )
 
